@@ -1,0 +1,41 @@
+openapi: 3.0.0
+info:
+  title: "📰 rssagg"
+  version: 0.1.0
+paths:
+  /api/feeds:
+    post:
+      summary: add feed
+      responses:
+        "200":
+          description: ok
+  /api/feeds:
+    get:
+      summary: list
+      responses:
+        "200":
+          description: ok
+  /api/entries:
+    get:
+      summary: entries
+      responses:
+        "200":
+          description: ok
+  /api/entries/<id>/read:
+    post:
+      summary: mark read
+      responses:
+        "200":
+          description: ok
+  /api/entries/<id>/star:
+    post:
+      summary: star
+      responses:
+        "200":
+          description: ok
+  /api/search:
+    get:
+      summary: search
+      responses:
+        "200":
+          description: ok

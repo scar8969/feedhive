@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Reader · rssagg{% endblock %}
+{% block content %}
+<h1>Reader</h1>
+<p class="sub">Showing {{ entries|length }} of {{ stats.entries }} stored entries{% if q %} matching “{{ q }}”{% endif %}{% if only %} · view: {{ only }}{% endif %}{% if feed_id %} · feed #{{ feed_id }}{% endif %}</p>
+
+<div class="cols">
+  <aside>
+    <div class="panel side">
+      <div class="hd"><h2>View</h2></div>
+      <div class="bd" style="padding:6px">
+        <a href="{{ url_for('index') }}"{% if not only and not feed_id %} class="on"{% endif %}>All entries <span class="n">{{ stats.entries }}</span></a>
+        <a href="{{ url_for('index', only='unread') }}"{% if only == 'unread' %} class="on"{% endif %}>Unread <span class="n">{{ stats.unread }}</span></a>
+        <a href="{{ url_for('index', only='starred') }}"{% if only == 'starred' %} class="on"{% endif %}>Starred <span class="n">{{ stats.starred }}</span></a>
+      </div>
+      <div class="hd"><h2>Feeds</h2></div>
+      <div class="bd" style="padding:6px">
+        {% for f in feeds %}
+          <a href="{{ url_for('index', feed=f.id) }}"{% if feed_id == f.id %} class="on"{% endif %}>{{ f.title }} <span class="n">{{ unread_by_feed.get(f.id, 0) }}</span></a>
+        {% else %}
+          <p class="empty">No feeds subscribed yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </aside>
+
+  <section>
+    <div class="panel">
+      <div class="hd">
+        <h2>Entries</h2>
+        <span class="row" style="margin-left:auto">
+          <a class="btn q" href="{{ url_for('index') }}">Reset view</a>
+          <a class="btn" href="{{ url_for('feeds_page') }}">Add feed</a>
+        </span>
+      </div>
+      <div class="bd" style="padding:0">
+        {% if entries %}
+        <table>
+          <tr><th>Title</th><th>Feed</th><th>Published</th><th>State</th><th>Actions</th></tr>
+          {% for e in entries %}
+          <tr>
+            <td>
+              {% if e.url %}<a class="lnk" href="{{ e.url }}" rel="noopener noreferrer">{{ e.title or '(untitled)' }}</a>
+              {% else %}{{ e.title or '(untitled)' }}{% endif %}
+              {% if e.url %}<div class="url">{{ e.url }}</div>{% endif %}
+            </td>
+            <td>{{ feed_titles.get(e.feed_id, 'feed #' ~ (e.feed_id or '?')) }}</td>
+            <td class="mono">{{ e.published_at.strftime('%Y-%m-%d %H:%M') if e.published_at else '—' }}</td>
+            <td>
+              {% if e.read %}<span class="pill ok">read</span>{% else %}<span class="pill">unread</span>{% endif %}
+              {% if e.starred %}<span class="pill no">starred</span>{% endif %}
+            </td>
+            <td>
+              <div class="row">
+                <form method="post" action="{{ url_for('entry_set', eid=e.id, action=('unread' if e.read else 'read')) }}">
+                  <button class="btn q" type="submit">{{ 'Mark unread' if e.read else 'Mark read' }}</button>
+                </form>
+                <form method="post" action="{{ url_for('entry_set', eid=e.id, action=('unstar' if e.starred else 'star')) }}">
+                  <button class="btn q" type="submit">{{ 'Unstar' if e.starred else 'Star' }}</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+        {% else %}
+        <p class="empty" style="padding:14px">
+          {% if q or only or feed_id %}Nothing matches this view.
+          {% else %}No entries stored yet — <a class="lnk" href="{{ url_for('feeds_page') }}">add a feed</a> and poll it.{% endif %}
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
