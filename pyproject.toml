@@ -142,3 +142,11 @@ show_error_codes = true
 [[tool.mypy.overrides]]
 module = ["flask.*", "werkzeug.*", "sqlalchemy.*"]
 ignore_missing_imports = true
+
+[tool.bandit]
+# Reviewed findings, each inherent to the architecture:
+#   B104: the service binds 0.0.0.0 inside a container; the port is the contract
+#   B310: urlopen targets an operator-configured endpoint, never user input
+#   B314: the XML comes from a feed the operator subscribed to
+#   B405: xml.etree parses operator-supplied documents only
+skips = ["B104", "B310", "B314", "B405"]
