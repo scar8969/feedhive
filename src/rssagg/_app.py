@@ -1,23 +1,25 @@
 import os
+from datetime import datetime
 
+from flask import Flask, Response, flash, jsonify, redirect, render_template, request, url_for
+
+from . import paths
 from .agg.api import bp
 from .agg.fetcher import fetch_feed
 from .agg.opml import export_opml, parse_opml
 from .agg.search import search
 from .models import Entry, Feed, db
 
-from datetime import datetime
-
-from flask import Flask, Response, flash, jsonify, redirect, render_template, request, url_for
-from . import paths
-
 # templates/ lives at the project root, next to web/ -- the same layout the
 # build produces and the one the Dockerfile and wsgi.py assume.
+
 
 def build_app():
     """Build the application: configuration, database, then routes."""
     app = Flask(__name__, template_folder=str(paths.TEMPLATES_DIR))
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("RSSAGG_DB_URI", "sqlite:///" + str(paths.INSTANCE_DIR / "rssagg.db"))
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+        "RSSAGG_DB_URI", "sqlite:///" + str(paths.INSTANCE_DIR / "rssagg.db")
+    )
     app.config["SECRET_KEY"] = os.environ.get("RSSAGG_SECRET_KEY", "rssagg-local")
     db.init_app(app)
     with app.app_context():
@@ -29,9 +31,12 @@ def build_app():
         return {"app_name": "📰 rssagg", "stats": _stats()}
 
     def _stats():
-        return {"feeds": Feed.query.count(), "entries": Entry.query.count(),
-                "unread": Entry.query.filter_by(read=0).count(),
-                "starred": Entry.query.filter_by(starred=1).count()}
+        return {
+            "feeds": Feed.query.count(),
+            "entries": Entry.query.count(),
+            "unread": Entry.query.filter_by(read=0).count(),
+            "starred": Entry.query.filter_by(starred=1).count(),
+        }
 
     def _safe_next(target):
         """Only ever redirect back into this app: a relative path with no scheme."""
@@ -55,9 +60,16 @@ def build_app():
                 continue
             if not guid and link and Entry.query.filter_by(url=link).first():
                 continue
-            db.session.add(Entry(feed_id=feed.id, guid=guid or link or None,
-                                 title=raw.get("title") or "", url=link,
-                                 content=raw.get("content") or "", published_at=published))
+            db.session.add(
+                Entry(
+                    feed_id=feed.id,
+                    guid=guid or link or None,
+                    title=raw.get("title") or "",
+                    url=link,
+                    content=raw.get("content") or "",
+                    published_at=published,
+                )
+            )
             added += 1
         return added
 
@@ -82,17 +94,29 @@ def build_app():
         entries = query.order_by(Entry.published_at.desc(), Entry.id.desc()).limit(200).all()
         feeds = Feed.query.order_by(Feed.title).all()
         return render_template(
-            "index.html", entries=entries, feeds=feeds, q=q, only=only, feed_id=feed_id,
+            "index.html",
+            entries=entries,
+            feeds=feeds,
+            q=q,
+            only=only,
+            feed_id=feed_id,
             feed_titles={f.id: (f.title or f.url) for f in feeds},
-            unread_by_feed={f.id: Entry.query.filter_by(feed_id=f.id, read=0).count() for f in feeds})
+            unread_by_feed={
+                f.id: Entry.query.filter_by(feed_id=f.id, read=0).count() for f in feeds
+            },
+        )
 
     @app.get("/feeds")
     def feeds_page():
         feeds = Feed.query.order_by(Feed.id).all()
         return render_template(
-            "feeds.html", feeds=feeds,
+            "feeds.html",
+            feeds=feeds,
             entry_counts={f.id: Entry.query.filter_by(feed_id=f.id).count() for f in feeds},
-            unread_by_feed={f.id: Entry.query.filter_by(feed_id=f.id, read=0).count() for f in feeds})
+            unread_by_feed={
+                f.id: Entry.query.filter_by(feed_id=f.id, read=0).count() for f in feeds
+            },
+        )
 
     def _subscribe(url, category):
         """Fetch a feed first, then store it. Returns the Feed or None on failure."""
@@ -107,8 +131,13 @@ def build_app():
         if not feed_data:
             flash("Could not fetch %s -- nothing was stored." % url, "error")
             return None
-        feed = Feed(url=url, title=feed_data.get("title") or url, category=category or "",
-                    etag=etag or "", last_poll=datetime.utcnow())
+        feed = Feed(
+            url=url,
+            title=feed_data.get("title") or url,
+            category=category or "",
+            etag=etag or "",
+            last_poll=datetime.utcnow(),
+        )
         db.session.add(feed)
         db.session.flush()
         added = _store_entries(feed, feed_data)
@@ -129,7 +158,10 @@ def build_app():
             return redirect(url_for("feeds_page"))
         feed_data, etag = fetch_feed(feed.url, feed.etag or "")
         if not feed_data:
-            flash("%s returned nothing (unreachable, or unchanged since the last poll)." % feed.url, "error")
+            flash(
+                "%s returned nothing (unreachable, or unchanged since the last poll)." % feed.url,
+                "error",
+            )
         else:
             added = _store_entries(feed, feed_data)
             if feed_data.get("title"):
@@ -176,15 +208,21 @@ def build_app():
                 failed += 1
             else:
                 added += 1
-        flash("OPML import: %d added, %d already subscribed, %d unreachable." % (added, skipped, failed),
-              "success" if added else "error")
+        flash(
+            "OPML import: %d added, %d already subscribed, %d unreachable."
+            % (added, skipped, failed),
+            "success" if added else "error",
+        )
         return redirect(url_for("feeds_page"))
 
     @app.get("/feeds/export.opml")
     def feed_export():
         feeds = Feed.query.order_by(Feed.id).all()
-        return Response(export_opml(feeds), mimetype="text/x-opml",
-                        headers={"Content-Disposition": "attachment; filename=feeds.opml"})
+        return Response(
+            export_opml(feeds),
+            mimetype="text/x-opml",
+            headers={"Content-Disposition": "attachment; filename=feeds.opml"},
+        )
 
     @app.post("/entries/<int:eid>/<action>")
     def entry_set(eid, action):
@@ -209,12 +247,15 @@ def build_app():
 
     @app.get("/api/health")
     def health():
-        return jsonify({"status": "ok", "feeds": Feed.query.count(), "entries": Entry.query.count()})
+        return jsonify(
+            {"status": "ok", "feeds": Feed.query.count(), "entries": Entry.query.count()}
+        )
 
     # python -m web.app
     if __name__ == "__main__":
         app.run(host="127.0.0.1", port=5000, debug=False)
 
     return app
+
 
 app = build_app()

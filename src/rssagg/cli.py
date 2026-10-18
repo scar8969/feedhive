@@ -5,8 +5,10 @@ Heavy imports (Flask app, database) are deferred into the individual command
 handlers so that ``python cli.py --help`` works even on a machine where the
 optional runtime dependencies are not importable yet.
 """
+
 import argparse
 import sys
+
 
 def _app():
     """Build the Flask app and push an application context (imported lazily)."""
@@ -23,17 +25,30 @@ def _app():
     ctx.push()
     return app, ctx
 
+
 def cmd_feeds(args):
     from .models import Entry, Feed
+
     app, ctx = _app()
     try:
         rows = Feed.query.order_by(Feed.id).all()
         if args.json:
             import json
-            print(json.dumps([{"id": f.id, "title": f.title, "url": f.url,
-                               "category": f.category,
-                               "unread": Entry.query.filter_by(feed_id=f.id, read=0).count()}
-                              for f in rows]))
+
+            print(
+                json.dumps(
+                    [
+                        {
+                            "id": f.id,
+                            "title": f.title,
+                            "url": f.url,
+                            "category": f.category,
+                            "unread": Entry.query.filter_by(feed_id=f.id, read=0).count(),
+                        }
+                        for f in rows
+                    ]
+                )
+            )
             return 0
         if not rows:
             print("no feeds yet - add one with:  cli.py add <url>")
@@ -46,8 +61,10 @@ def cmd_feeds(args):
     finally:
         ctx.pop()
 
+
 def cmd_add(args):
     from .models import Feed
+
     app, ctx = _app()
     try:
         existing = Feed.query.filter_by(url=args.url).first()
@@ -57,8 +74,9 @@ def cmd_add(args):
         client = app.test_client()
         resp = client.post("/api/feeds", json={"url": args.url, "category": args.category})
         if resp.status_code != 200:
-            print("failed (%s): %s" % (resp.status_code, resp.get_data(as_text=True)),
-                  file=sys.stderr)
+            print(
+                "failed (%s): %s" % (resp.status_code, resp.get_data(as_text=True)), file=sys.stderr
+            )
             return 1
         data = resp.get_json()
         print("subscribed: %s (id=%s)" % (data.get("title", args.url), data.get("id")))
@@ -66,9 +84,11 @@ def cmd_add(args):
     finally:
         ctx.pop()
 
+
 def cmd_poll(args):
     """Re-fetch feeds and store any new entries."""
     from .models import Feed
+
     app, ctx = _app()
     try:
         q = Feed.query
@@ -88,8 +108,10 @@ def cmd_poll(args):
     finally:
         ctx.pop()
 
+
 def cmd_entries(args):
     from .models import Entry
+
     app, ctx = _app()
     try:
         q = Entry.query
@@ -102,8 +124,21 @@ def cmd_entries(args):
         rows = q.order_by(Entry.id.desc()).limit(args.limit).all()
         if args.json:
             import json
-            print(json.dumps([{"id": e.id, "title": e.title, "url": e.url,
-                               "read": bool(e.read), "starred": bool(e.starred)} for e in rows]))
+
+            print(
+                json.dumps(
+                    [
+                        {
+                            "id": e.id,
+                            "title": e.title,
+                            "url": e.url,
+                            "read": bool(e.read),
+                            "starred": bool(e.starred),
+                        }
+                        for e in rows
+                    ]
+                )
+            )
             return 0
         if not rows:
             print("no entries match")
@@ -115,8 +150,10 @@ def cmd_entries(args):
     finally:
         ctx.pop()
 
+
 def cmd_mark(args):
     from .models import Entry, db
+
     app, ctx = _app()
     try:
         entry = db.session.get(Entry, args.id)
@@ -137,30 +174,37 @@ def cmd_mark(args):
     finally:
         ctx.pop()
 
+
 def cmd_search(args):
     from .agg.search import search
+
     app, ctx = _app()
     try:
         rows = search(args.query)
         if args.json:
             import json
+
             print(json.dumps(rows))
             return 0
         if not rows:
             print("no matches for %r" % args.query)
             return 0
         for row in rows:
-            print("%-4s %-60s %s" % (row.get("id"), (row.get("title") or "")[:60],
-                                     (row.get("url") or "")[:50]))
+            print(
+                "%-4s %-60s %s"
+                % (row.get("id"), (row.get("title") or "")[:60], (row.get("url") or "")[:50])
+            )
         return 0
     finally:
         ctx.pop()
 
+
 def cmd_opml_import(args):
     from .agg.opml import parse_opml
+
     app, ctx = _app()
     try:
-        with open(args.file, "r", encoding="utf-8") as fh:
+        with open(args.file, encoding="utf-8") as fh:
             feeds = parse_opml(fh.read())
         print("parsed %d feed(s) from %s" % (len(feeds), args.file))
         for feed in feeds:
@@ -169,13 +213,14 @@ def cmd_opml_import(args):
     finally:
         ctx.pop()
 
+
 def cmd_opml_export(args):
     from .agg.opml import export_opml
     from .models import Feed
+
     app, ctx = _app()
     try:
-        feeds = [{"url": f.url, "title": f.title, "category": f.category}
-                 for f in Feed.query.all()]
+        feeds = [{"url": f.url, "title": f.title, "category": f.category} for f in Feed.query.all()]
         text = export_opml(feeds)
         if args.out:
             with open(args.out, "w", encoding="utf-8") as fh:
@@ -187,17 +232,21 @@ def cmd_opml_export(args):
     finally:
         ctx.pop()
 
+
 def cmd_serve(args):
     from ._app import app
+
     app.run(host=args.host, port=args.port, debug=args.debug)
     return 0
+
 
 def build_parser():
     p = argparse.ArgumentParser(
         prog="cli.py",
         description="rssagg - self-hosted RSS aggregator with full-text search",
         epilog="Environment: RSSAGG_DB_URI and RSSAGG_SECRET_KEY override the database\n"
-               "URI and the Flask secret. See README.md.")
+        "URI and the Flask secret. See README.md.",
+    )
     sub = p.add_subparsers(dest="cmd", metavar="<command>")
 
     s = sub.add_parser("feeds", help="list subscribed feeds")
@@ -246,6 +295,7 @@ def build_parser():
     s.set_defaults(func=cmd_serve)
 
     return p
+
 
 def main(argv=None):
     p = build_parser()

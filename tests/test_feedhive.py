@@ -1,5 +1,4 @@
 """B6 rssagg — tests. Run: pytest test_feedhive.py"""
-import sys, os
 
 import pytest
 
@@ -15,16 +14,20 @@ OPML = """<?xml version="1.0"?>
 <outline text="arXiv" title="arXiv" type="rss" xmlUrl="https://arxiv.org/rss/cs.AI"/>
 </body></opml>"""
 
+
 @pytest.mark.skipif(not feedparser_ok, reason="feedparser not installed")
 def test_parse_opml():
     from rssagg.agg.opml import parse_opml
+
     feeds = parse_opml(OPML)
     assert len(feeds) == 2
     assert feeds[0][1] == "https://news.ycombinator.com/rss"
 
+
 @pytest.mark.skipif(not feedparser_ok, reason="feedparser not installed")
 def test_export_opml_roundtrip():
     from rssagg.agg.opml import export_opml, parse_opml
+
     feeds = [type("F", (), {"title": "HN", "url": "https://hn/rss"})()]
     xml = export_opml(feeds)
     assert "HN" in xml and "https://hn/rss" in xml

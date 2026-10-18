@@ -1,7 +1,9 @@
 from datetime import datetime
+
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
+
 
 class Feed(db.Model):
     __tablename__ = "feeds"
@@ -12,6 +14,7 @@ class Feed(db.Model):
     etag = db.Column(db.String(128), default="")
     last_poll = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 class Entry(db.Model):
     __tablename__ = "entries"
