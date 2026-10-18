@@ -34,7 +34,7 @@ RUN groupadd --system --gid 1001 app \
 WORKDIR /app
 
 COPY --from=builder /wheels /wheels
-RUN python -m pip install --no-cache-dir --no-index --find-links=/wheels b6-rssagg \
+RUN python -m pip install --no-cache-dir --no-index --find-links=/wheels feedhive \
  && rm -rf /wheels \
  && mkdir -p /var/lib/rssagg/instance /var/lib/rssagg/log \
  && chown -R app:app /var/lib/rssagg /app

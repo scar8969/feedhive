@@ -1,4 +1,4 @@
-"""B6 rssagg — tests. Run: pytest test_b6_rssagg.py"""
+"""B6 rssagg — tests. Run: pytest test_feedhive.py"""
 import sys, os
 
 import pytest

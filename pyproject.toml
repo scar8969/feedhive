@@ -3,13 +3,13 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "b6-rssagg"
+name = "feedhive"
 version = "0.1.0"
-description = "A self-hosted RSS aggregator. You subscribe to feeds by URL, the server fetches and parses them,"
+description = "Self-hosted RSS aggregator: subscribe by URL, fetch and parse on a schedule, read and search entries."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-authors = [{ name = "project-skeletons maintainers" }]
+authors = [{ name = "Priyanshu Rout" }]
 keywords = ["flask", "service", "rssagg"]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -47,7 +47,7 @@ Documentation = "https://example.invalid/rssagg/docs"
 Issues = "https://example.invalid/rssagg/issues"
 
 [project.scripts]
-b6-rssagg = "rssagg.cli:main"
+feedhive = "rssagg.cli:main"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
