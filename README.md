@@ -67,6 +67,7 @@ Every route below is in [`openapi/feedhive.yaml`](openapi/feedhive.yaml) and is 
 | Method | Path | What it does |
 | --- | --- | --- |
 | `GET` | `/api/feeds` | list |
+| `POST` | `/api/feeds` | add feed |
 | `GET` | `/api/entries` | entries |
 | `POST` | `/api/entries/<id>/read` | mark read |
 | `POST` | `/api/entries/<id>/star` | star |
@@ -103,7 +104,7 @@ These numbers were produced on this checkout by `pytest --cov` and by booting `w
 
 | Signal | Value |
 | --- | --- |
-| Tests | **22 / 22 passed** (2.8 s, exit 0) |
+| Tests | **22 / 22 passed** (1.9 s, exit 0) |
 | Line coverage | **44.5%** — 446 of 907 statements |
 | Source | 15 files / 1,820 lines |
 | Test code | 4 files / 233 lines |

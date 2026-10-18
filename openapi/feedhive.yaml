@@ -9,7 +9,6 @@ paths:
       responses:
         "200":
           description: ok
-  /api/feeds:
     get:
       summary: list
       responses:

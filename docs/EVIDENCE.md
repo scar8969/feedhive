@@ -4,7 +4,7 @@ Every line below was produced by a command run against this exact checkout, on t
 
 | | |
 | --- | --- |
-| Generated | 2026-10-19 02:24 |
+| Generated | 2026-10-19 02:58 |
 | Python | 3.14.7 |
 | Platform | Windows 11 |
 
@@ -15,7 +15,7 @@ python -m pytest -q
 ```
 
 - exit code **0**
-- 22 passed in 1.23s
+- 22 passed in 0.88s
 
 ## Static gates
 
