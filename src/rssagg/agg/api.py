@@ -2,6 +2,7 @@ from datetime import datetime
 
 from flask import Blueprint, jsonify, request
 
+from ..clock import utcnow
 from ..models import Entry, Feed, db
 from .fetcher import fetch_feed
 from .search import search
@@ -43,7 +44,7 @@ def add_feed():
         title=feed_data.get("title") or url,
         category=d.get("category", ""),
         etag=etag or "",
-        last_poll=datetime.utcnow(),
+        last_poll=utcnow(),
     )
     db.session.add(feed)
     db.session.flush()

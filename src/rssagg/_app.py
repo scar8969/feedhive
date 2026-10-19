@@ -8,6 +8,7 @@ from .agg.api import bp
 from .agg.fetcher import fetch_feed
 from .agg.opml import export_opml, parse_opml
 from .agg.search import search
+from .clock import utcnow
 from .models import Entry, Feed, db
 
 # templates/ lives at the project root, next to web/ -- the same layout the
@@ -136,7 +137,7 @@ def build_app():
             title=feed_data.get("title") or url,
             category=category or "",
             etag=etag or "",
-            last_poll=datetime.utcnow(),
+            last_poll=utcnow(),
         )
         db.session.add(feed)
         db.session.flush()
@@ -168,7 +169,7 @@ def build_app():
                 feed.title = feed_data["title"]
             feed.etag = etag or ""
             flash("Polled %s: %d new entries." % (feed.title, added), "success")
-        feed.last_poll = datetime.utcnow()
+        feed.last_poll = utcnow()
         db.session.commit()
         return redirect(url_for("feeds_page"))
 

@@ -144,7 +144,7 @@ Produced on this checkout by `pytest --cov` and by booting `wsgi.py` and issuing
 | --- | --- |
 | Tests | **22 / 22 passed** (1.9 s, exit 0) |
 | Line coverage | **44.5%** — 446 of 907 statements |
-| Source | 15 files / 1,823 lines |
+| Source | 15 files / 1,843 lines |
 | Test code | 4 files / 233 lines |
 | Documented paths | 5 in the spec, 3 GET |
 | Live probe | 12 GET requests to the booted app, **12 answered 200** |
@@ -178,10 +178,10 @@ feedhive/
 ├── src/rssagg/
 │   ├── http.py                         379  HTTP plumbing for rssagg: correlation ids, access lo
 │   ├── cli.py                          311  rssagg CLI - manage feeds and entries from the termi
-│   ├── _app.py                         262  
+│   ├── _app.py                         263  
 │   ├── config.py                       172  Environment-driven configuration for rssagg
 │   ├── observability.py                169  Structured logging and request correlation for rssag
-│   ├── agg/api.py                      131  
+│   ├── agg/api.py                      132  
 │   ├── app.py                          119  Application factory for rssagg
 │   ├── errors.py                       108  Typed application errors and their HTTP mapping for 
 │   ├── paths.py                         52  Filesystem layout for rssagg

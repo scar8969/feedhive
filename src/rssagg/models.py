@@ -1,6 +1,6 @@
-from datetime import datetime
-
 from flask_sqlalchemy import SQLAlchemy
+
+from .clock import utcnow
 
 db = SQLAlchemy()
 
@@ -13,7 +13,7 @@ class Feed(db.Model):
     category = db.Column(db.String(64), default="")
     etag = db.Column(db.String(128), default="")
     last_poll = db.Column(db.DateTime, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utcnow)
 
 
 class Entry(db.Model):
