@@ -19,7 +19,6 @@ __all__ = ["LEGACY_ENV_VARS", "ConfigError", "Settings", "get_settings", "reset_
 #: Environment reads that the application modules perform directly. They are
 #: collected here so an operator can discover the whole surface in one place.
 LEGACY_ENV_VARS: tuple[str, ...] = (
-    "ANALYTICS_SALT",
     "PORT",
     "RSSAGG_DB_URI",
     "RSSAGG_SECRET_KEY",

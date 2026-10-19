@@ -4,7 +4,7 @@ Every line below was produced by a command run against this exact checkout, on t
 
 | | |
 | --- | --- |
-| Generated | 2026-10-19 02:58 |
+| Generated | 2026-10-19 09:41 |
 | Python | 3.14.7 |
 | Platform | Windows 11 |
 
@@ -15,7 +15,7 @@ python -m pytest -q
 ```
 
 - exit code **0**
-- 22 passed in 0.88s
+- 22 passed in 0.87s
 
 ## Static gates
 
@@ -37,6 +37,25 @@ The application was imported through `wsgi.py` and each GET path declared in `op
 | 200 | `/api/search` | 15 | application/json |
 
 3 paths walked, 0 of them raised or answered 5xx.
+
+## CLI
+
+```
+usage: cli.py [-h] <command> ...
+
+rssagg - self-hosted RSS aggregator with full-text search
+
+positional arguments:
+  <command>
+    feeds        list subscribed feeds
+    add          subscribe to a feed URL
+    poll         re-fetch feeds and store new entries
+    entries      list stored entries
+    mark         mark an entry read/unread/starred
+    search       full-text search entries
+    opml-import  parse an OPML subscription list
+    opml-export  export subscriptions as OPML
+```
 
 ## Screenshots
 
